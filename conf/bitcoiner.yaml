@@ -1,0 +1,3 @@
+DataCollectionDuration: 10s                                       # interval of collection (1 s default)
+DataSourceURL: https://api.coindesk.com/v1/bpi/currentprice.json  # url of the data source of rates (https://api.coindesk.com/v1/bpi/currentprice.json default)
+SupportedCurrencies: USD,EUR,GBP                                  # comma-separated currencies to collect (USD default)

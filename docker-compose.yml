@@ -1,0 +1,76 @@
+#  This file is part of the eliona project.
+#  Copyright © 2022 LEICOM iTEC AG. All Rights Reserved.
+#  ______ _ _
+# |  ____| (_)
+# | |__  | |_  ___  _ __   __ _
+# |  __| | | |/ _ \| '_ \ / _` |
+# | |____| | | (_) | | | | (_| |
+# |______|_|_|\___/|_| |_|\__,_|
+#
+#  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+#  BUT NOT LIMITED  TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#  NON INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+#  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# Use this docker-compose.yml to start a simplified Eliona environment for mocking purposes. This mock
+# provides a database and an Eliona API endpoint. Both can be used to develop and test apps and other
+# components of Eliona against an Eliona environment
+
+version: "3.7"
+
+networks:
+  eliona-mock-network:
+    name: eliona-mock-network
+
+services:
+
+  # Simplified Eliona database as backend for the API-v2 server.
+  # The database can be connected with: CONNECTION_STRING=postgres://postgres:postgres@localhost:5432
+  database:
+    container_name: database-mock
+    image: debezium/postgres:12
+    environment:
+      POSTGRES_PASSWORD: secret
+      PGPORT: 5432
+      TZ: Europe/Zurich
+    networks:
+      eliona-mock-network:
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
+    ports:
+      - "5432:5432"
+
+  # Server representing the Eliona API v2.
+  # The API endpoint can be connected with: API_ENDPOINT=http://localhost:8082/v2
+  api-v2:
+    container_name: api-v2
+    image: eliona/api-v2:v9.2.0
+    environment:
+      CONNECTION_STRING: postgres://postgres:secret@database-mock:5432
+      API_ENDPOINT: http://localhost:3000/v2
+      API_TOKEN: secret
+    networks:
+      eliona-mock-network:
+    restart: always
+    ports:
+      - "3000:3000"
+
+  # Eliona Bitcoiner App using the Eliona API v2.
+  # The API endpoint can be connected with: API_ENDPOINT=http://localhost:8082/v2
+  bitcoiner-api-v1:
+    image: localhost:5001/bitcoiner
+    container_name: bitcoiner-api-v1
+    environment:
+      APPNAME: bitcoiner
+      CONNECTION_STRING: postgres://postgres:secret@database-mock:5432
+      API_ENDPOINT: http://api-v2:3000/v2
+      API_TOKEN: secret
+      API_SERVER_PORT: 8082
+      DEBUG_LEVEL: info
+    networks:
+      eliona-mock-network:
+    restart: always
+    ports:
+      - "8082:8082"

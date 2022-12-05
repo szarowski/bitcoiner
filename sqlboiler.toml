@@ -1,0 +1,37 @@
+output   = "db/template"
+pkgname  = "dbtemplate"
+add-global-variants = true
+wipe     = true
+no-tests = true
+add-enum-types = true
+
+[psql]
+dbname = "postgres"
+host   = "localhost"
+port   = 5432
+user   = "postgres"
+pass   = "secret"
+schema = "template"
+sslmode = "disable"
+whitelist = [
+    "asset_type", "asset", "attribute_schema", "heap", "eliona_app",
+    "patches", "widget", "widget_data", "widget_type", "widget_element",
+    "alarm", "alarm_cfg", "alarm_history", "edge_bridge", "eliona_node",
+    "iosys_access", "iosys_device", "mbus_access", "mbus_device",
+    "dashboard"
+]
+
+[[types]]
+[types.match]
+type = "null.Int"
+nullable = true
+
+[types.replace]
+type = "null.Int32"
+
+[[types]]
+[types.match]
+type = "int"
+
+[types.replace]
+type = "int32"
