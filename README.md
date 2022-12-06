@@ -110,6 +110,8 @@ export APPNAME=bitcoiner
 export DEBUG_LEVEL=info
 ```
 
+First, please copy the downloaded/forked folder (e.g. `bitcoiner-master`) into `bitcoiner` directory as the docker works with this directory.
+
 There are 3 possible ways to start the application:
 1. By running `go build ./...` and `go run hailo`. Before that there is required to start `docker-compose up -d ` in `eliona-mock-develop` or using the `docker-compose.yaml` in this project which just extends the set of containers.
 2. By creating a Docker container by running:
@@ -130,7 +132,7 @@ Here are some examples to use it:
 - GET endpoint to retrieve collected data so far:
   - `curl 'http://localhost:8082/v1/examples' -H 'x-api-key secret'`
 - POST endpoint to update one of the collected data:
-  - `curl 'http://localhost:8082/v1/examples' -H 'x-api-key secret' -d '{
+  - `curl -X POST 'http://localhost:8082/v1/examples' -H 'x-api-key secret' -d '{
     "id": 1,
     "data": {
     "timestamp_milli": 1670192520000,
